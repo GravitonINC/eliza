@@ -12,7 +12,8 @@
     },
     "dependencies": {
         "@ai16z/eliza": "workspace:*",
-        "@privy-io/server-auth": "^1.17.2"
+        "@privy-io/server-auth": "^1.0.0",
+        "node-fetch": "^3.3.0"
     },
     "peerDependencies": {
         "@ai16z/eliza": "workspace:*"
