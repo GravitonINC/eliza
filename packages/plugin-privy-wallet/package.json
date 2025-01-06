@@ -5,9 +5,10 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "build": "tsc --declaration --emitDeclarationOnly --outDir dist && tsup src/index.ts --format esm",
-        "clean": "rm -rf dist",
-        "lint": "eslint --fix --cache ."
+        "build": "tsup --format esm --dts",
+        "dev": "tsup --format esm --dts --watch",
+        "lint": "eslint --fix --cache .",
+        "test": "vitest run"
     },
     "dependencies": {
         "@ai16z/eliza": "workspace:*",
@@ -16,17 +17,18 @@
     "peerDependencies": {
         "@ai16z/eliza": "workspace:*"
     },
+    "devDependencies": {
+        "typescript": "^5.6.3",
+        "tsup": "^8.3.5",
+        "vitest": "^2.1.4",
+        "eslint": "^8.56.0",
+        "@typescript-eslint/parser": "^6.19.0",
+        "@typescript-eslint/eslint-plugin": "^6.19.0"
+    },
     "exports": {
         ".": {
             "import": "./dist/index.js",
             "types": "./dist/index.d.ts"
         }
-    },
-    "devDependencies": {
-        "typescript": "^5.6.3",
-        "tsup": "^8.0.0",
-        "eslint": "^8.56.0",
-        "@typescript-eslint/parser": "^6.19.0",
-        "@typescript-eslint/eslint-plugin": "^6.19.0"
     }
 }
