@@ -11,6 +11,10 @@ export interface PrivyWalletResponse {
     address: string;
     type: string;
     chain: string;
+    balance?: string;
+    uiAmount?: string;
+    priceUsd?: string;
+    valueUsd?: string;
 }
 
 class PrivyClientWrapper {
@@ -34,17 +38,27 @@ class PrivyClientWrapper {
 
     public async getWallet(userId: string, chain: string): Promise<PrivyWalletResponse | null> {
         try {
-            const { wallets } = await this.client.getWallets({ userId });
-            const wallet = wallets.find(w => w.chain === chain);
-            if (!wallet) {
+            const user = await this.client.getUser(userId);
+            const wallet = user.wallet;
+            if (!wallet || wallet.chain !== chain) {
                 return null;
             }
+
+            // Get wallet balance using SDK methods
+            const balance = await this.client.getBalance({
+                userId,
+                walletId: wallet.id
+            });
 
             return {
                 id: wallet.id,
                 address: wallet.address,
                 type: 'privy',
                 chain: chain,
+                balance: balance?.amount,
+                uiAmount: balance?.formatted,
+                priceUsd: balance?.price,
+                valueUsd: balance?.value
             };
         } catch (error) {
             console.error(`Error getting ${chain} wallet for user ${userId}:`, error);
@@ -54,20 +68,18 @@ class PrivyClientWrapper {
 
     public async createWallet(userId: string, chain: string): Promise<PrivyWalletResponse | null> {
         try {
-            const { wallets } = await this.client.createWallets({
+            const wallet = await this.client.createWallet({
                 userId,
-                chains: [chain]
+                type: chain.toLowerCase() === 'solana' ? 'solana' : 'evm'
             });
             
-            if (!wallets || wallets.length === 0) {
+            if (!wallet) {
                 return null;
             }
-
-            const wallet = wallets[0];
             return {
                 id: wallet.id,
                 address: wallet.address,
-                type: 'privy',
+                type: wallet.type,
                 chain: chain,
             };
         } catch (error) {
