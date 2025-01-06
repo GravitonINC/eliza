@@ -1,21 +1,27 @@
 import { IAgentRuntime, Memory, Provider, State } from "@ai16z/eliza";
-import { PrivyServerAuth } from "@privy-io/server-auth";
 import BigNumber from "bignumber.js";
 import NodeCache from "node-cache";
+import { createPrivyClient, PrivyWalletResponse } from "../privyClient";
 
 // Provider configuration
 const PROVIDER_CONFIG = {
     MAX_RETRIES: 3,
     RETRY_DELAY: 2000,
-    SUPPORTED_CHAINS: [
-        "ethereum",
-        "polygon",
-        "optimism",
-        "arbitrum",
-        "base",
-        "zora",
-        "solana",
-    ],
+    SUPPORTED_CHAINS: {
+        evm: [
+            "ethereum",
+            "polygon",
+            "optimism",
+            "arbitrum",
+            "base",
+            "zora",
+            "avalanche",
+            "binance-smart-chain",
+            "fantom",
+            "gnosis",
+        ],
+        solana: ["solana"],
+    },
 };
 
 export interface PrivyWalletInfo {
@@ -35,13 +41,11 @@ interface WalletPortfolio {
 
 export class WalletProvider {
     private cache: NodeCache;
-    private privy: PrivyServerAuth;
-
     constructor() {
         this.cache = new NodeCache({ stdTTL: 300 }); // Cache TTL set to 5 minutes
     }
 
-    private async initPrivy(runtime: IAgentRuntime) {
+    private async getPrivyClient(runtime: IAgentRuntime) {
         const appId = runtime.getSetting("PRIVY_APP_ID");
         const appSecret = runtime.getSetting("PRIVY_APP_SECRET");
 
@@ -49,10 +53,7 @@ export class WalletProvider {
             throw new Error("Privy credentials not configured");
         }
 
-        this.privy = new PrivyServerAuth({
-            appId,
-            appSecret,
-        });
+        return createPrivyClient({ appId, appSecret });
     }
 
     private async fetchWithRetry(
@@ -96,27 +97,22 @@ export class WalletProvider {
                 return cachedValue;
             }
 
-            if (!this.privy) {
-                await this.initPrivy(runtime);
-            }
-
+            const privy = await this.getPrivyClient(runtime);
             const wallets: PrivyWalletInfo[] = [];
             let totalUsd = new BigNumber(0);
 
-            // Fetch wallets for each supported chain
-            for (const chain of PROVIDER_CONFIG.SUPPORTED_CHAINS) {
-                try {
-                    const wallet = await this.privy.getWallet(userId, chain);
+            // Fetch wallets for each supported chain type
+            for (const [chainType, chains] of Object.entries(PROVIDER_CONFIG.SUPPORTED_CHAINS)) {
+                for (const chain of chains) {
+                    const wallet = await privy.getWallet(userId, chain);
                     if (wallet) {
                         const walletInfo: PrivyWalletInfo = {
                             walletId: wallet.id,
-                            chainType: chain,
+                            chainType: chainType,
                             address: wallet.address,
                         };
                         wallets.push(walletInfo);
                     }
-                } catch (error) {
-                    console.error(`Error fetching ${chain} wallet:`, error);
                 }
             }
 
