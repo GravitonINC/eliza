@@ -1,9 +1,15 @@
 import { Character, ModelProviderName } from "./types.ts";
+import { privyWalletPlugin } from "@ai16z/plugin-privy-wallet";
 
 export const defaultCharacter: Character = {
     name: "Eliza",
     username: "eliza",
-    plugins: [],
+    plugins: [
+        privyWalletPlugin(
+            process.env.PRIVY_APP_ID || "",
+            process.env.PRIVY_APP_SECRET || ""
+        ),
+    ],
     clients: [],
     modelProvider: ModelProviderName.LLAMALOCAL,
     settings: {
