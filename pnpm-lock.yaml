@@ -1460,14 +1460,11 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@privy-io/server-auth':
-        specifier: ^1.0.0
+        specifier: ^1.17.2
         version: 1.17.2(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
       node-fetch:
         specifier: ^3.3.0
         version: 3.3.2
-      uuid:
-        specifier: 11.0.3
-        version: 11.0.3
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.0.0
@@ -32630,7 +32627,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0(supports-color@8.1.1)
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
