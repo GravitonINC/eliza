@@ -1463,8 +1463,11 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@privy-io/server-auth':
-        specifier: ^1.17.2
+        specifier: ^1.0.0
         version: 1.17.2(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      node-fetch:
+        specifier: ^3.3.0
+        version: 3.3.2
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.19.0
